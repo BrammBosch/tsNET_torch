@@ -21,16 +21,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    graph = "graphs/mesh3e1.vna"
-    output = "./output.vna"
-    perplexity = 40
-    learning_rate = 50
-    star = True
-
     # Check for valid input
-    assert(os.path.isfile(graph))
-    graph_name = os.path.splitext(os.path.basename(graph))[0]
-    if star:
+    assert(os.path.isfile(args.input_graph))
+    graph_name = os.path.splitext(os.path.basename(args.input_graph))[0]
+    if args.star:
         assert(os.path.isfile('./pivotmds_layouts/{0}.vna'.format(graph_name)))
 
     # Global hyperparameters
@@ -44,25 +38,22 @@ if __name__ == '__main__':
 
     # Phase 2 cost function parameters
     lambdas_2 = [1, 1.2, 0]
-    if star:
+    if args.star:
         lambdas_2[1] = 0.1
 
     # Phase 3 cost function parameters
     lambdas_3 = [1, 0.01, 0.6]
 
     # Read input graph
-    #print('Reading graph: {0}...'.format(args.input_graph), end=' ', flush=True)
-    g = graph_io.load_graph(graph)
-    #G = nx.read_
-    print('Done.')
+    g = graph_io.load_graph(args.input_graph)
+    # g = nx.read_graphml(graph)
+    # g = nx.convert_node_labels_to_integers(g)
 
     print('Input graph: {0}, (|V|, |E|) = ({1}, {2})'.format(graph_name, g.number_of_nodes(), g.number_of_edges()))
 
     # # Load the PivotMDS layout for initial placement
-    if star:
-        #print('Reading PivotMDS layout...', end=' ', flush=True)
+    if args.star:
         _, Y_init = layout_io.load_layout('./pivotmds_layouts/{0}.vna'.format(graph_name))
-        print('Done.')
     else:
         Y_init = None
 
@@ -70,17 +61,15 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # Compute the shortest-path distance matrix.
-    #print('Computing SPDM...'.format(graph_name), end=' ', flush=True)
     #X = distance_matrix.get_distance_matrix(g, 'spdm', verbose=False)
     X = nx.floyd_warshall_numpy(g)
 
-    print('Done.')
 
     # The actual optimization is done in the thesne module.
     Y = thesne.tsnet(
-        X, output_dims=2, random_state=1, perplexity=perplexity, n_epochs=n,
+        X, output_dims=2, random_state=1, perplexity=args.perplexity, n_epochs=n,
         Y=Y_init,
-        initial_lr=learning_rate, final_lr=learning_rate, lr_switch=n // 2,
+        initial_lr=args.learning_rate, final_lr=args.learning_rate, lr_switch=n // 2,
         initial_momentum=momentum, final_momentum=momentum, momentum_switch=n // 2,
         initial_l_kl=lambdas_2[0], final_l_kl=lambdas_3[0], l_kl_switch=n // 2,
         initial_l_c=lambdas_2[1], final_l_c=lambdas_3[1], l_c_switch=n // 2,
@@ -103,6 +92,6 @@ if __name__ == '__main__':
     nx.draw(g,pos=pos)
     plt.show()
 
-    if output is not None:
-        layout_io.save_vna(output, g, Y)
-        print('Saved layout data in "{}"'.format(output))
+    if args.output is not None:
+        layout_io.save_vna(args.output, g, Y)
+        print('Saved layout data in "{}"'.format(args.output))

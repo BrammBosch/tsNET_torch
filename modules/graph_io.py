@@ -1,6 +1,5 @@
 import os
 import numpy as np
-#import graph_tool.all as gt
 import networkx as nx
 
 def load_graph(in_file):

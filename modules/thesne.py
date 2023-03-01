@@ -86,7 +86,6 @@ def find_sigma(X_shared, sigma_shared, N, perplexity, sigma_iters, verbose=0):
     for i in range(sigma_iters):
         e,sigmin_shared,sigmax_shared = update_intervals(X_shared,sigma_shared,sigmin_shared,sigmax_shared,target)
         sigma_shared = update_sigma(sigma_shared,sigmax_shared,sigmin_shared)
-        #print(sigmax_shared)
         if verbose:
             print('Finding sigmas... Iteration {0}/{1}: Perplexities in [{2:.4f}, {3:.4f}].'.format(i + 1, sigma_iters,
                                                                                                     np.exp(e.min()),                                                                                  np.exp(e.max())),
@@ -205,7 +204,6 @@ def update_Yv(Yv,N,lr,Y,momentum,X,sigma,l_kl,l_c,l_r,r_eps):
 
     costs = cost_var(X, Y, sigma, l_kl, l_c, l_r, r_eps)
     cost = torch.sum(costs)
-    #torch.autograd.set_detect_anomaly(True)
 
     grad_y = torch.autograd.grad(cost,Y)[0]
 
