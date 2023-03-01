@@ -39,9 +39,6 @@ Example:
 * `python3`
 * [`numpy`](http://www.numpy.org/)
 * [`matplotlib`](https://matplotlib.org/)
-* [`graph-tool`](https://graph-tool.skewed.de/)
-* [`theano`](http://deeplearning.net/software/theano/)
-* [`scikit-learn`](http://scikit-learn.org/stable/)
-
-# Example
+* [`networkx`](https://networkx.org/)
+* [`torch`](https://pytorch.org/)
 
