@@ -6,6 +6,7 @@ def load_graph(in_file):
     extension = os.path.splitext(in_file)[1]
     if extension == '.vna':
         g = load_vna(in_file)
+
     return g
 
 

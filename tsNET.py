@@ -8,6 +8,7 @@ import modules.graph_io as graph_io
 import modules.thesne as thesne
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
+from pivot_MDS import Pivot_MDS
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Read a graph, and produce a layout with tsNET(*).')
@@ -19,13 +20,16 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', '-l', type=float, default=50, help='Learning rate (hyper)parameter for optimization.')
     parser.add_argument('--output', '-o', type=str, help='Save layout to the specified file.')
 
+
     args = parser.parse_args()
+
+
+
 
     # Check for valid input
     assert(os.path.isfile(args.input_graph))
     graph_name = os.path.splitext(os.path.basename(args.input_graph))[0]
-    if args.star:
-        assert(os.path.isfile('./pivotmds_layouts/{0}.vna'.format(graph_name)))
+
 
     # Global hyperparameters
     n = 5000  # Maximum #iterations before giving up
@@ -45,15 +49,26 @@ if __name__ == '__main__':
     lambdas_3 = [1, 0.01, 0.6]
 
     # Read input graph
-    g = graph_io.load_graph(args.input_graph)
-    # g = nx.read_graphml(graph)
-    # g = nx.convert_node_labels_to_integers(g)
+    extension = os.path.splitext(args.input_graph)[1]
+    if extension == '.vna':
+        g = graph_io.load_graph(args.input_graph)
+    elif extension == '.graphml':
+        g = nx.read_graphml(args.input_graph)
+        g = nx.convert_node_labels_to_integers(g)
+
 
     print('Input graph: {0}, (|V|, |E|) = ({1}, {2})'.format(graph_name, g.number_of_nodes(), g.number_of_edges()))
 
     # # Load the PivotMDS layout for initial placement
     if args.star:
-        _, Y_init = layout_io.load_layout('./pivotmds_layouts/{0}.vna'.format(graph_name))
+        if not os.path.isfile('./pivotmds_layouts/{0}.vna'.format(graph_name)):
+            try:
+                Y_init = Pivot_MDS(args.input_graph)
+            except Exception as e:
+                print("Make sure either a VNA pivot_mds layout is provided or the graph file is graphml")
+                quit()
+        else:
+            _, Y_init = layout_io.load_layout('./pivotmds_layouts/{0}.vna'.format(graph_name))
     else:
         Y_init = None
 
@@ -61,7 +76,6 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # Compute the shortest-path distance matrix.
-    #X = distance_matrix.get_distance_matrix(g, 'spdm', verbose=False)
     X = nx.floyd_warshall_numpy(g)
 
 

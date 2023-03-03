@@ -41,4 +41,4 @@ Example:
 * [`matplotlib`](https://matplotlib.org/)
 * [`networkx`](https://networkx.org/)
 * [`torch`](https://pytorch.org/)
-
+* [`tulip`](https://tulip.labri.fr/Documentation/current/tulip-python/html/index.html)
