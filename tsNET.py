@@ -77,7 +77,12 @@ if __name__ == '__main__':
 
     # Compute the shortest-path distance matrix.
     X = nx.floyd_warshall_numpy(g)
+    # if there are disconnected components then some distances are inf, resolve this
 
+    X[X == np.inf] = 10 * np.max(X)
+
+    # normalize gtds
+    X /= np.max(X)
 
     # The actual optimization is done in the thesne module.
     Y = thesne.tsnet(
